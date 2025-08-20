@@ -1,11 +1,11 @@
 # Content Safety Model
 
 ## Overview
-This is an end-to-end **Content Safety Model** designed to classify text, images, and voices.  
+This is an end-to-end **Content Safety Model** designed to classify **text**, **images**, and **voices**.  
 The system includes both a **hard classifier** and a **soft classifier**:
 
 - **Hard Classifier**: LLaMA Guard  
-- **Soft Classifier**: Fine-tuned DistilBERT on safety data, achieving **95% accuracy**
+- **Soft Classifier**: Fine-tuned DistilBERT on safety data, achieving **95% F1-Score**
 
 The soft classifier acts as an additional safety layer to detect unsafe content behind LLaMA Guard.
 
