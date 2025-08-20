@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">AI Safety Model</h1>
+
+    <!-- Text Classification -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Text Classification</h5>
+        </div>
+        <div class="card-body">
+            <form id="textForm" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="request_type" value="text">
+                <div class="mb-3">
+                    <label for="textInput" class="form-label">Enter Text</label>
+                    <textarea class="form-control" id="textInput" name="text_input" rows="3"
+                        placeholder="Type your text here..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Classify Text</button>
+                <div id="textResult" class="mt-3 text-success fw-bold"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Classification -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Image Classification</h5>
+        </div>
+        <div class="card-body">
+            <form id="imageForm" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="request_type" value="image">
+                <input type="file" id="imageInput" name="image_input" accept="image/*" style="display:none;" required>
+
+                <button type="button" id="chooseImageBtn" class="btn btn-secondary mb-3">Choose Image</button>
+
+                <!-- Preview -->
+                <div id="imagePreview" class="mb-3 text-center" style="display:none;">
+                    <strong>Preview:</strong><br>
+                    <img id="preview_img" class="img-fluid rounded shadow mt-2" style="max-height:200px;" />
+                    <div id="file_info" class="text-muted small mt-1"></div>
+                </div>
+
+                <button id="submit_img_btn" type="submit" class="btn btn-success" disabled>Classify Image</button>
+                <div id="imageResult" class="mt-3 text-success fw-bold"></div>
+                <!-- Caption -->
+                <div id="imageCaption" class="mt-2 text-info fw-semibold"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Voice Classification -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Voice Classification</h5>
+        </div>
+        <div class="card-body">
+            <form id="voiceForm" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="request_type" value="voice">
+                <input type="file" id="voiceInput" name="voice_input" accept="audio/*" style="display:none;">
+
+                <button type="button" id="chooseVoiceBtn" class="btn btn-secondary mb-3">Choose Audio</button>
+
+                <!-- Preview -->
+                <div id="voicePreview" class="mb-3 text-center" style="display:none;">
+                    <strong>Preview:</strong><br>
+                    <audio id="preview_audio" controls class="mt-2"></audio>
+                    <div id="voice_file_info" class="text-muted small mt-1"></div>
+                </div>
+
+                <button id="submit_voice_btn" type="submit" class="btn btn-warning text-dark" disabled>
+                    Classify Voice
+                </button>
+                <div id="voiceResult" class="mt-3 text-success fw-bold"></div>
+                <!-- Transcription -->
+                <div id="voiceTranscription" class="mt-2 text-info fw-semibold"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Image selection
+    document.getElementById('chooseImageBtn').addEventListener('click', () => {
+        document.getElementById('imageInput').click();
+    });
+    document.getElementById('imageInput').addEventListener('change', function () {
+        const file = this.files[0];
+        const preview = document.getElementById('imagePreview');
+        const img = document.getElementById('preview_img');
+        const info = document.getElementById('file_info');
+        const submitBtn = document.getElementById('submit_img_btn');
+
+        if (!file) {
+            preview.style.display = 'none';
+            submitBtn.disabled = true;
+            return;
+        }
+        img.src = URL.createObjectURL(file);
+        info.textContent = `${file.name} • ${(file.size / 1024).toFixed(1)} KB`;
+        preview.style.display = 'block';
+        submitBtn.disabled = false;
+    });
+
+    // Voice selection
+    document.getElementById('chooseVoiceBtn').addEventListener('click', () => {
+        document.getElementById('voiceInput').click();
+    });
+    document.getElementById('voiceInput').addEventListener('change', function () {
+        const file = this.files[0];
+        const preview = document.getElementById('voicePreview');
+        const audio = document.getElementById('preview_audio');
+        const info = document.getElementById('voice_file_info');
+        const submitBtn = document.getElementById('submit_voice_btn');
+
+        if (!file) {
+            preview.style.display = 'none';
+            submitBtn.disabled = true;
+            return;
+        }
+        audio.src = URL.createObjectURL(file);
+        info.textContent = `${file.name} • ${(file.size / 1024).toFixed(1)} KB`;
+        preview.style.display = 'block';
+        submitBtn.disabled = false;
+    });
+
+    // Generic AJAX form handler
+    function handleForm(formId, resultId, extraId = null, extraKey = null) {
+        const form = document.getElementById(formId);
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            fetch("/predict", { method: "POST", body: formData })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById(resultId).innerText =
+                        `Hard: ${data.hard || 'N/A'} | Soft: ${data.soft || 'N/A'}`;
+
+                    // Show extra (caption or transcription)
+                    if (extraId && data[extraKey]) {
+                        document.getElementById(extraId).innerText = 
+                            `${extraKey.charAt(0).toUpperCase() + extraKey.slice(1)}: ${data[extraKey]}`;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById(resultId).innerText = "Error: " + err.message;
+                });
+        });
+    }
+
+    handleForm("textForm", "textResult");
+    handleForm("imageForm", "imageResult", "imageCaption", "caption");
+    handleForm("voiceForm", "voiceResult", "voiceTranscription", "transcription");
+</script>
+
+{% endblock %}
