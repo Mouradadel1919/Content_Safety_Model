@@ -41,6 +41,7 @@ The model is deployed using **FastAPI**.
    ```bash
    pip install -r requirements.txt
    ```
+3. ffmpeg should be installed if you need voice classification
 3. Run app
    ```bash
    python app.py
