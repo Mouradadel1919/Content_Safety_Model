@@ -1,5 +1,11 @@
 # Content Safety Model
 
+
+
+https://github.com/user-attachments/assets/533959b3-cb28-4c55-8903-15beeeb115af
+
+
+
 ## Overview
 This is an end-to-end **Content Safety Model** designed to classify **text**, **images**, and **voices**.  
 The system includes both a **hard classifier** and a **soft classifier**:
