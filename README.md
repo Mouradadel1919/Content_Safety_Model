@@ -34,7 +34,7 @@ The soft classifier acts as an additional safety layer to detect unsafe content 
 
 ## Notebook
 You can view the full notebook here:  
-[Content Safety Notebook on Kaggle](https://www.kaggle.com/code/mouradadel333/toxic-content-classifiere586bd1c1f)
+[Content Safety Notebook on Kaggle](https://www.kaggle.com/code/mouradadel333/content-safety-model)
 
 ---
 
