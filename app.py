@@ -81,7 +81,6 @@ blip_model = BlipForConditionalGeneration.from_pretrained(blip_model_path)
 
 '''LLaMA-Guard Model'''
 
-
 llama_model_path = "./saved_models/llama/llama_model"
 llama_processor_path = "./saved_models/llama/llama_tokenizer"
 
@@ -202,10 +201,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get('/', response_class=HTMLResponse)
 @app.get('/home', response_class=HTMLResponse)
-
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get('/about', response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
 
 
 @app.get("/predict", response_class=HTMLResponse)
